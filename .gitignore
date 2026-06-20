@@ -1,0 +1,29 @@
+# Build outputs
+**/bin/
+**/obj/
+**/dist/
+**/.angular/
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+
+# Node
+node_modules/
+npm-debug.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
