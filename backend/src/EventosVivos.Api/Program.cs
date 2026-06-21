@@ -41,6 +41,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("Frontend");
 app.UseHttpsRedirection();
+app.UseMiddleware<AdminApiKeyMiddleware>();
 app.MapControllers();
 
 app.Run();

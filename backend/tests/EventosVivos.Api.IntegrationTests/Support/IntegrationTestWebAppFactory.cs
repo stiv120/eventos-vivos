@@ -23,7 +23,8 @@ public sealed class IntegrationTestWebAppFactory : WebApplicationFactory<Program
         {
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["Testing:InMemoryDatabaseName"] = _databaseName
+                ["Testing:InMemoryDatabaseName"] = _databaseName,
+                ["Admin:ApiKey"] = "test-admin-key"
             });
         });
 
@@ -43,5 +44,11 @@ public sealed class IntegrationTestWebAppFactory : WebApplicationFactory<Program
         db.Database.EnsureCreated();
 
         return host;
+    }
+
+    protected override void ConfigureClient(HttpClient client)
+    {
+        base.ConfigureClient(client);
+        client.DefaultRequestHeaders.Add("X-Admin-Key", "test-admin-key");
     }
 }

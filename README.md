@@ -64,6 +64,15 @@ App: `http://localhost:4200`
 
 > Ambos deben estar corriendo al mismo tiempo.
 
+## Seguridad
+
+La confirmación de pago (`POST /api/reservations/{id}/confirm-payment`) requiere la cabecera `X-Admin-Key`. Configúrala en:
+
+- Backend: `Admin:ApiKey` en `appsettings.Development.json`
+- Frontend: `adminApiKey` en `frontend/src/environments/environment.ts`
+
+Las reservas y cancelaciones permanecen públicas según el enunciado (RF-03 y RF-05).
+
 ## Tests
 
 ```bash
@@ -81,6 +90,7 @@ dotnet test
 | GET | `/api/venues` | Venues de referencia |
 | POST | `/api/events` | Crear evento |
 | GET | `/api/events` | Listar eventos (filtros opcionales) |
+| GET | `/api/events/{id}` | Obtener evento por id |
 | GET | `/api/events/{id}/occupancy-report` | Reporte de ocupación |
 | POST | `/api/reservations` | Crear reserva |
 | POST | `/api/reservations/{id}/confirm-payment` | Confirmar pago |
