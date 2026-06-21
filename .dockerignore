@@ -1,0 +1,16 @@
+**/.git
+**/.vs
+**/.vscode
+**/.idea
+**/bin
+**/obj
+**/node_modules
+**/dist
+**/.angular
+**/*.user
+**/*.suo
+.env
+.env.local
+**/npm-debug.log
+**/Thumbs.db
+**/.DS_Store
