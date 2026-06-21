@@ -13,7 +13,6 @@
 .vs/
 .vscode/
 .idea/
-.cursor/
 *.user
 *.suo
 
