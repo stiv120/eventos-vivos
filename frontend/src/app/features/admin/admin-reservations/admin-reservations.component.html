@@ -1,0 +1,36 @@
+<section class="card">
+  <h2>Administración - Gestión de reservas</h2>
+
+  <form [formGroup]="form" (ngSubmit)="loadReservation()" class="search-form">
+    <input formControlName="reservationId" type="text" placeholder="ID de reserva (GUID)" />
+    <button type="submit">Buscar</button>
+  </form>
+
+  @if (message) {
+    <p class="alert success">{{ message }}</p>
+  }
+  @if (errorMessage) {
+    <p class="alert error">{{ errorMessage }}</p>
+  }
+
+  @if (reservation) {
+    <div class="details">
+      <p><strong>ID:</strong> {{ reservation.id }}</p>
+      <p><strong>Evento:</strong> {{ reservation.eventId }}</p>
+      <p><strong>Comprador:</strong> {{ reservation.buyerName }} ({{ reservation.buyerEmail }})</p>
+      <p><strong>Cantidad:</strong> {{ reservation.quantity }}</p>
+      <p><strong>Estado:</strong> {{ getStatusLabel(reservation.status) }}</p>
+      <p><strong>Código:</strong> {{ reservation.reservationCode ?? 'N/A' }}</p>
+
+      <div class="actions">
+        <button type="button" (click)="confirmPayment()" [disabled]="reservation.status !== 1">
+          Confirmar pago
+        </button>
+        <button type="button" class="danger" (click)="cancelReservation()"
+          [disabled]="reservation.status === 3 || reservation.status === 4">
+          Cancelar reserva
+        </button>
+      </div>
+    </div>
+  }
+</section>

@@ -1,0 +1,37 @@
+<section class="card">
+  <a routerLink="/events" class="back-link">← Volver a eventos</a>
+  <h2>Reporte de ocupación</h2>
+
+  @if (errorMessage) {
+    <p class="alert error">{{ errorMessage }}</p>
+  }
+
+  @if (report) {
+    <div class="stats">
+      <div class="stat">
+        <span>Evento</span>
+        <strong>{{ report.eventTitle }}</strong>
+      </div>
+      <div class="stat">
+        <span>Entradas vendidas</span>
+        <strong>{{ report.totalSoldTickets }}</strong>
+      </div>
+      <div class="stat">
+        <span>Disponibles</span>
+        <strong>{{ report.availableTickets }}</strong>
+      </div>
+      <div class="stat">
+        <span>Ocupación</span>
+        <strong>{{ report.occupancyPercentage }}%</strong>
+      </div>
+      <div class="stat">
+        <span>Ingresos</span>
+        <strong>${{ report.totalRevenue }}</strong>
+      </div>
+      <div class="stat">
+        <span>Estado</span>
+        <strong>{{ getStatusLabel(report.status) }}</strong>
+      </div>
+    </div>
+  }
+</section>

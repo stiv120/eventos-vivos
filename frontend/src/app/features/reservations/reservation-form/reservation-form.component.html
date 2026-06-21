@@ -1,0 +1,36 @@
+<section class="card">
+  <a routerLink="/events" class="back-link">← Volver a eventos</a>
+
+  @if (event) {
+    <h2>Reservar: {{ event.title }}</h2>
+    <p>{{ event.venueName }} · {{ event.availableSeats }} entradas disponibles · ${{ event.ticketPrice }}</p>
+  }
+
+  @if (successMessage) {
+    <p class="alert success">{{ successMessage }}</p>
+  }
+  @if (errorMessage) {
+    <p class="alert error">{{ errorMessage }}</p>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <label>
+      Cantidad
+      <input formControlName="quantity" type="number" min="1" />
+    </label>
+
+    <label>
+      Nombre del comprador
+      <input formControlName="buyerName" type="text" />
+    </label>
+
+    <label>
+      Email del comprador
+      <input formControlName="buyerEmail" type="email" />
+    </label>
+
+    <button type="submit" [disabled]="isSubmitting || form.invalid || !event">
+      {{ isSubmitting ? 'Reservando...' : 'Crear reserva' }}
+    </button>
+  </form>
+</section>
