@@ -1,0 +1,17 @@
+<div class="layout">
+  <header class="header">
+    <div class="brand">
+      <h1>EventosVivos</h1>
+      <p>Plataforma de reservas de eventos culturales</p>
+    </div>
+    <nav>
+      <a routerLink="/events" routerLinkActive="active">Eventos</a>
+      <a routerLink="/events/create" routerLinkActive="active">Crear evento</a>
+      <a routerLink="/admin/reservations" routerLinkActive="active">Administración</a>
+    </nav>
+  </header>
+
+  <main class="content">
+    <router-outlet />
+  </main>
+</div>

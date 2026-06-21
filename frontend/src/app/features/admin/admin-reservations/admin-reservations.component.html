@@ -1,0 +1,36 @@
+<section class="card">
+  <h2>Administración - Gestión de reservas</h2>
+  <p class="hint">Panel interno para confirmar pagos y cancelar reservas.</p>
+
+  <form [formGroup]="form" (ngSubmit)="loadReservation()" class="search-form">
+    <input formControlName="reservationId" type="text" placeholder="Identificador de la reserva" />
+    <button type="submit">Buscar</button>
+  </form>
+
+  @if (message) {
+    <p class="alert success">{{ message }}</p>
+  }
+  @if (errorMessage) {
+    <p class="alert error">{{ errorMessage }}</p>
+  }
+
+  @if (reservation) {
+    <div class="details">
+      <p><strong>Evento:</strong> {{ eventTitle || 'Evento no disponible' }}</p>
+      <p><strong>Comprador:</strong> {{ reservation.buyerName }} ({{ reservation.buyerEmail }})</p>
+      <p><strong>Entradas:</strong> {{ reservation.quantity }}</p>
+      <p><strong>Estado:</strong> {{ getStatusLabel(reservation.status) }}</p>
+      <p><strong>Código de entrada:</strong> {{ reservation.reservationCode ?? 'Pendiente de confirmación' }}</p>
+
+      <div class="actions">
+        <button type="button" (click)="confirmPayment()" [disabled]="reservation.status !== 1">
+          Confirmar pago
+        </button>
+        <button type="button" class="danger" (click)="cancelReservation()"
+          [disabled]="reservation.status === 3 || reservation.status === 4">
+          Cancelar reserva
+        </button>
+      </div>
+    </div>
+  }
+</section>

@@ -1,0 +1,64 @@
+<section class="card">
+  <div class="header">
+    <h2>Eventos</h2>
+    <a routerLink="/events/create" class="btn-link">+ Nuevo evento</a>
+  </div>
+
+  <form class="filters" [formGroup]="filterForm" (ngSubmit)="loadEvents()">
+    <input formControlName="titleSearch" type="search" placeholder="Buscar por título" />
+    <select formControlName="type">
+      <option value="">Todos los tipos</option>
+      @for (type of eventTypes; track type.value) {
+        <option [value]="type.value">{{ type.label }}</option>
+      }
+    </select>
+    <select formControlName="status">
+      <option value="">Todos los estados</option>
+      @for (status of eventStatuses; track status.value) {
+        <option [value]="status.value">{{ status.label }}</option>
+      }
+    </select>
+    <select formControlName="venueId">
+      <option value="">Todos los venues</option>
+      @for (venue of venues; track venue.id) {
+        <option [value]="venue.id">{{ venue.name }}</option>
+      }
+    </select>
+    <input formControlName="startDateFrom" type="date" title="Fecha inicio desde" />
+    <input formControlName="startDateTo" type="date" title="Fecha inicio hasta" />
+    <button type="submit">Aplicar filtros</button>
+  </form>
+
+  @if (errorMessage) {
+    <p class="alert error">{{ errorMessage }}</p>
+  }
+
+  @if (isLoading) {
+    <p>Cargando eventos...</p>
+  }
+
+  <div class="grid">
+    @for (event of events; track event.id) {
+      <article class="event-card">
+        <h3>{{ event.title }}</h3>
+        <p>{{ event.description }}</p>
+        <ul>
+          <li><strong>Venue:</strong> {{ event.venueName }} ({{ event.venueCity }})</li>
+          <li><strong>Tipo:</strong> {{ getTypeLabel(event.type) }}</li>
+          <li><strong>Estado:</strong> {{ getStatusLabel(event.status) }}</li>
+          <li><strong>Inicio:</strong> {{ event.startDateTime | date:'medium' }}</li>
+          <li><strong>Precio:</strong> ${{ event.ticketPrice }}</li>
+          <li><strong>Disponibles:</strong> {{ event.availableSeats }} / {{ event.maxCapacity }}</li>
+        </ul>
+        <div class="actions">
+          <a [routerLink]="['/events', event.id, 'reserve']" class="btn-link">Reservar</a>
+          <a [routerLink]="['/events', event.id, 'report']" class="btn-link secondary">Reporte</a>
+        </div>
+      </article>
+    } @empty {
+      @if (!isLoading) {
+        <p>No se encontraron eventos.</p>
+      }
+    }
+  </div>
+</section>

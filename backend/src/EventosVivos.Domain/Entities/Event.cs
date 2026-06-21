@@ -73,7 +73,7 @@ public sealed class Event
     {
         if (Status != EventStatus.Active)
         {
-            throw new BusinessRuleException("EVENT_CANCEL", "Only active events can be cancelled.");
+            throw new BusinessRuleException("EVENT_CANCEL", "Solo se pueden cancelar eventos activos.");
         }
 
         Status = EventStatus.Cancelled;
@@ -117,47 +117,47 @@ public sealed class Event
     {
         if (string.IsNullOrWhiteSpace(title) || title.Trim().Length < 5 || title.Trim().Length > 100)
         {
-            throw new BusinessRuleException("EVENT_TITLE", "Title must be between 5 and 100 characters.");
+            throw new BusinessRuleException("EVENT_TITLE", "El título debe tener entre 5 y 100 caracteres.");
         }
 
         if (string.IsNullOrWhiteSpace(description) || description.Trim().Length < 10 || description.Trim().Length > 500)
         {
-            throw new BusinessRuleException("EVENT_DESCRIPTION", "Description must be between 10 and 500 characters.");
+            throw new BusinessRuleException("EVENT_DESCRIPTION", "La descripción debe tener entre 10 y 500 caracteres.");
         }
 
         if (maxCapacity <= 0)
         {
-            throw new BusinessRuleException("EVENT_CAPACITY", "Max capacity must be a positive integer.");
+            throw new BusinessRuleException("EVENT_CAPACITY", "La capacidad máxima debe ser un número positivo.");
         }
 
         if (maxCapacity > venue.Capacity)
         {
-            throw new BusinessRuleException("RN-01", "Event capacity cannot exceed venue capacity.");
+            throw new BusinessRuleException("RN-01", "La capacidad del evento no puede superar la del lugar.");
         }
 
         if (startDateTime <= utcNow)
         {
-            throw new BusinessRuleException("EVENT_START", "Start date must be in the future.");
+            throw new BusinessRuleException("EVENT_START", "La fecha de inicio debe ser futura.");
         }
 
         if (endDateTime <= startDateTime)
         {
-            throw new BusinessRuleException("EVENT_END", "End date must be after start date.");
+            throw new BusinessRuleException("EVENT_END", "La fecha de fin debe ser posterior a la de inicio.");
         }
 
         if (ticketPrice <= 0)
         {
-            throw new BusinessRuleException("EVENT_PRICE", "Ticket price must be a positive decimal.");
+            throw new BusinessRuleException("EVENT_PRICE", "El precio de entrada debe ser mayor a cero.");
         }
 
         if (IsWeekend(startDateTime) && startDateTime.TimeOfDay > new TimeSpan(22, 0, 0))
         {
-            throw new BusinessRuleException("RN-03", "Weekend events cannot start after 22:00.");
+            throw new BusinessRuleException("RN-03", "Los eventos de fin de semana no pueden iniciar después de las 22:00.");
         }
 
         if (overlappingActiveEvents.Any(e => HasScheduleOverlap(startDateTime, endDateTime, e.StartDateTime, e.EndDateTime)))
         {
-            throw new BusinessRuleException("RN-02", "Active events cannot overlap at the same venue.");
+            throw new BusinessRuleException("RN-02", "Ya hay un evento activo en ese lugar con horario superpuesto.");
         }
     }
 
