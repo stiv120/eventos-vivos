@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { Event, EventFilter, EventStatus, EventType, Venue } from '../../../core/models';
 import {
@@ -25,6 +26,7 @@ export class EventListComponent implements OnInit {
   events: Event[] = [];
   venues: Venue[] = [];
   errorMessage = '';
+  isLoading = true;
 
   filterForm = this.fb.group({
     type: [''],
@@ -48,11 +50,11 @@ export class EventListComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    this.api.getVenues().subscribe(venues => (this.venues = venues));
     this.loadEvents();
   }
 
   loadEvents(): void {
+    this.isLoading = true;
     const raw = this.filterForm.getRawValue();
     const filter: EventFilter = {};
 
@@ -63,12 +65,20 @@ export class EventListComponent implements OnInit {
     if (raw.startDateFrom) filter.startDateFrom = new Date(raw.startDateFrom).toISOString();
     if (raw.startDateTo) filter.startDateTo = new Date(raw.startDateTo).toISOString();
 
-    this.api.getEvents(filter).subscribe({
-      next: events => {
+    forkJoin({
+      venues: this.api.getVenues(),
+      events: this.api.getEvents(filter)
+    }).subscribe({
+      next: ({ venues, events }) => {
+        this.venues = venues;
         this.events = events;
         this.errorMessage = '';
+        this.isLoading = false;
       },
-      error: () => (this.errorMessage = 'No se pudieron cargar los eventos.')
+      error: () => {
+        this.errorMessage = 'No se pudieron cargar los eventos.';
+        this.isLoading = false;
+      }
     });
   }
 

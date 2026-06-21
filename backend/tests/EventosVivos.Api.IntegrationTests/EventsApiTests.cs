@@ -51,8 +51,10 @@ public sealed class EventsApiTests(IntegrationTestWebAppFactory factory) : IClas
         var request = BuildValidEventRequest("ABC", venueId: 1, maxCapacity: 10);
 
         var response = await _client.PostAsJsonAsync("/api/events", request);
+        var body = await response.Content.ReadAsStringAsync();
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        body.Should().Contain("\"code\":\"VALIDATION_ERROR\"");
     }
 
     [Fact]

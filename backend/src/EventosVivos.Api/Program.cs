@@ -1,4 +1,5 @@
 using EventosVivos.Api.Middleware;
+using EventosVivos.Api.Serialization;
 using EventosVivos.Application;
 using EventosVivos.Infrastructure;
 using EventosVivos.Infrastructure.Persistence;
@@ -6,7 +7,8 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options => ApiJsonOptions.Apply(options.JsonSerializerOptions));
 builder.Services.AddOpenApi();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration, builder.Environment.EnvironmentName);

@@ -1,3 +1,5 @@
+using EventosVivos.Api.Serialization;
+
 namespace EventosVivos.Api.Middleware;
 
 public sealed class AdminApiKeyMiddleware
@@ -23,9 +25,9 @@ public sealed class AdminApiKeyMiddleware
                 {
                     context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                     context.Response.ContentType = "application/json";
-                    await context.Response.WriteAsJsonAsync(new ErrorResponse(
-                        "UNAUTHORIZED",
-                        "Admin API key is required."));
+                    await context.Response.WriteAsJsonAsync(
+                        new ErrorResponse("UNAUTHORIZED", "Se requiere clave de administrador."),
+                        ApiJsonOptions.Default);
                     return;
                 }
             }

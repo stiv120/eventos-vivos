@@ -118,20 +118,79 @@ public sealed class ReservationsApiTests(IntegrationTestWebAppFactory factory) :
 
         var confirmResponse = await clientWithoutKey.PostAsync(
             $"/api/reservations/{reservation!.Id}/confirm-payment", null);
+        var body = await confirmResponse.Content.ReadAsStringAsync();
 
         confirmResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        body.Should().Contain("\"code\":\"UNAUTHORIZED\"");
+    }
+
+    [Fact]
+    public async Task Cancel_PendingPayment_ShouldReleaseSeats()
+    {
+        factory.DateTimeProvider.SetUtcNow(BaseUtc);
+
+        var createdEvent = await CreateEventAsync("Pending Cancel Event", venueId: 3, maxCapacity: 10, dayOffset: 20);
+
+        var reservationResponse = await _client.PostAsJsonAsync("/api/reservations", new CreateReservationRequest(
+            createdEvent.Id, 3, "Buyer", "buyer@test.com"));
+        var reservation = await reservationResponse.Content.ReadFromJsonAsync<ReservationResponse>();
+
+        var eventBeforeCancel = await GetEventAsync(createdEvent.Id);
+        eventBeforeCancel.AvailableSeats.Should().Be(7);
+
+        var cancelResponse = await _client.PostAsync($"/api/reservations/{reservation!.Id}/cancel", null);
+        var cancelled = await cancelResponse.Content.ReadFromJsonAsync<ReservationResponse>();
+
+        cancelled!.Status.Should().Be(ReservationStatus.Cancelled);
+
+        var eventAfterCancel = await GetEventAsync(createdEvent.Id);
+        eventAfterCancel.AvailableSeats.Should().Be(10);
+    }
+
+    [Fact]
+    public async Task Cancel_LostReservation_ShouldReturnUnprocessableEntity()
+    {
+        factory.DateTimeProvider.SetUtcNow(BaseUtc);
+
+        var start = BaseUtc.AddHours(30);
+        var createdEvent = await CreateEventAsync("Lost Cancel Event", venueId: 1, maxCapacity: 20, start, start.AddHours(2));
+
+        var reservationResponse = await _client.PostAsJsonAsync("/api/reservations", new CreateReservationRequest(
+            createdEvent.Id, 1, "Buyer", "buyer@test.com"));
+        var reservation = await reservationResponse.Content.ReadFromJsonAsync<ReservationResponse>();
+
+        await _client.PostAsync($"/api/reservations/{reservation!.Id}/confirm-payment", null);
+        await _client.PostAsync($"/api/reservations/{reservation.Id}/cancel", null);
+
+        var secondCancel = await _client.PostAsync($"/api/reservations/{reservation.Id}/cancel", null);
+        var body = await secondCancel.Content.ReadAsStringAsync();
+
+        secondCancel.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        body.Should().Contain("RESERVATION_LOST");
     }
 
     private async Task<EventResponse> CreateEventAsync(string title, int venueId, int maxCapacity, int dayOffset = 15)
+    {
+        var start = BaseUtc.AddDays(dayOffset);
+        return await CreateEventAsync(title, venueId, maxCapacity, start, start.AddHours(3));
+    }
+
+    private async Task<EventResponse> CreateEventAsync(
+        string title,
+        int venueId,
+        int maxCapacity,
+        DateTime start,
+        DateTime end,
+        decimal ticketPrice = 75m)
     {
         var request = new CreateEventRequest(
             title,
             "Integration test event description.",
             venueId,
             maxCapacity,
-            BaseUtc.AddDays(dayOffset),
-            BaseUtc.AddDays(dayOffset).AddHours(3),
-            75m,
+            start,
+            end,
+            ticketPrice,
             EventType.Workshop);
 
         var response = await _client.PostAsJsonAsync("/api/events", request);

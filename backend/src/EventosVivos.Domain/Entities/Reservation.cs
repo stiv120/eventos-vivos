@@ -46,17 +46,17 @@ public sealed class Reservation
     {
         if (Status == ReservationStatus.Confirmed)
         {
-            throw new BusinessRuleException("RESERVATION_CONFIRMED", "Reservation is already confirmed.");
+            throw new BusinessRuleException("RESERVATION_CONFIRMED", "Esta reserva ya está confirmada.");
         }
 
         if (Status == ReservationStatus.Cancelled)
         {
-            throw new BusinessRuleException("RESERVATION_CANCELLED", "Cancelled reservations cannot be confirmed.");
+            throw new BusinessRuleException("RESERVATION_CANCELLED", "No se puede confirmar una reserva cancelada.");
         }
 
         if (Status == ReservationStatus.Lost)
         {
-            throw new BusinessRuleException("RESERVATION_LOST", "Lost reservations cannot be confirmed.");
+            throw new BusinessRuleException("RESERVATION_LOST", "No se puede confirmar una reserva perdida.");
         }
 
         Status = ReservationStatus.Confirmed;
@@ -67,12 +67,12 @@ public sealed class Reservation
     {
         if (Status == ReservationStatus.Cancelled)
         {
-            throw new BusinessRuleException("RESERVATION_ALREADY_CANCELLED", "Reservation is already cancelled.");
+            throw new BusinessRuleException("RESERVATION_ALREADY_CANCELLED", "Esta reserva ya está cancelada.");
         }
 
         if (Status == ReservationStatus.Lost)
         {
-            throw new BusinessRuleException("RESERVATION_LOST", "Lost reservations cannot be cancelled again.");
+            throw new BusinessRuleException("RESERVATION_LOST", "Esta reserva ya fue registrada como perdida.");
         }
 
         if (applyPenalty && Status == ReservationStatus.Confirmed)
@@ -96,27 +96,27 @@ public sealed class Reservation
     {
         if (!@event.IsActive())
         {
-            throw new BusinessRuleException("EVENT_NOT_ACTIVE", "Reservations are only allowed for active events.");
+            throw new BusinessRuleException("EVENT_NOT_ACTIVE", "Solo se pueden reservar eventos activos.");
         }
 
         if (quantity < 1)
         {
-            throw new BusinessRuleException("RESERVATION_QUANTITY", "Quantity must be at least 1.");
+            throw new BusinessRuleException("RESERVATION_QUANTITY", "La cantidad debe ser al menos 1.");
         }
 
         if (string.IsNullOrWhiteSpace(buyerName))
         {
-            throw new BusinessRuleException("BUYER_NAME", "Buyer name is required.");
+            throw new BusinessRuleException("BUYER_NAME", "El nombre del comprador es obligatorio.");
         }
 
         if (!IsValidEmail(buyerEmail))
         {
-            throw new BusinessRuleException("BUYER_EMAIL", "Buyer email format is invalid.");
+            throw new BusinessRuleException("BUYER_EMAIL", "El correo del comprador no tiene un formato válido.");
         }
 
         if (@event.StartDateTime <= utcNow.AddHours(1))
         {
-            throw new BusinessRuleException("RN-04", "Reservations are not allowed within 1 hour of event start.");
+            throw new BusinessRuleException("RN-04", "No se permiten reservas cuando falta menos de 1 hora para iniciar el evento.");
         }
 
         var timeUntilStart = @event.StartDateTime - utcNow;
@@ -126,12 +126,12 @@ public sealed class Reservation
         {
             throw new BusinessRuleException(
                 "RN-05",
-                $"Maximum {maxPerTransaction} tickets allowed per transaction for this event.");
+                $"Solo puedes reservar hasta {maxPerTransaction} entradas por compra en este evento.");
         }
 
         if (quantity > @event.GetAvailableSeats())
         {
-            throw new BusinessRuleException("CAPACITY", "Not enough tickets available for this event.");
+            throw new BusinessRuleException("CAPACITY", "No hay suficientes entradas disponibles.");
         }
     }
 

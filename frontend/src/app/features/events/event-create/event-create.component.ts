@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { getApiErrorMessage } from '../../../core/utils/api-error';
 import { ApiService } from '../../../core/services/api.service';
 import { EventType, Venue } from '../../../core/models';
 import { EVENT_TYPE_LABELS } from '../../../core/labels/labels';
@@ -77,7 +78,7 @@ export class EventCreateComponent implements OnInit {
         this.isSubmitting = false;
       },
       error: err => {
-        this.errorMessage = err.error?.Message ?? err.error?.message ?? 'No se pudo crear el evento.';
+        this.errorMessage = getApiErrorMessage(err, 'No se pudo crear el evento.');
         this.isSubmitting = false;
       }
     });
