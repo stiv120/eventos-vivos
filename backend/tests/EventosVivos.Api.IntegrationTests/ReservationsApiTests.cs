@@ -82,6 +82,46 @@ public sealed class ReservationsApiTests(IntegrationTestWebAppFactory factory) :
         body.Should().Contain("RESERVATION_CANCELLED");
     }
 
+    [Fact]
+    public async Task Cancel_AlreadyCancelledReservation_ShouldReturnUnprocessableEntity()
+    {
+        factory.DateTimeProvider.SetUtcNow(BaseUtc);
+
+        var createdEvent = await CreateEventAsync("Double Cancel Event", venueId: 1, maxCapacity: 20, dayOffset: 10);
+
+        var reservationResponse = await _client.PostAsJsonAsync("/api/reservations", new CreateReservationRequest(
+            createdEvent.Id, 1, "Buyer", "buyer@test.com"));
+        var reservation = await reservationResponse.Content.ReadFromJsonAsync<ReservationResponse>();
+
+        await _client.PostAsync($"/api/reservations/{reservation!.Id}/cancel", null);
+
+        var secondCancel = await _client.PostAsync($"/api/reservations/{reservation.Id}/cancel", null);
+        var body = await secondCancel.Content.ReadAsStringAsync();
+
+        secondCancel.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        body.Should().Contain("RESERVATION_ALREADY_CANCELLED");
+    }
+
+    [Fact]
+    public async Task ConfirmPayment_WithoutAdminKey_ShouldReturnUnauthorized()
+    {
+        factory.DateTimeProvider.SetUtcNow(BaseUtc);
+
+        var clientWithoutKey = factory.CreateClient();
+        clientWithoutKey.DefaultRequestHeaders.Remove("X-Admin-Key");
+
+        var createdEvent = await CreateEventAsync("Admin Key Event", venueId: 2, maxCapacity: 20, dayOffset: 15);
+
+        var reservationResponse = await clientWithoutKey.PostAsJsonAsync("/api/reservations", new CreateReservationRequest(
+            createdEvent.Id, 1, "Buyer", "buyer@test.com"));
+        var reservation = await reservationResponse.Content.ReadFromJsonAsync<ReservationResponse>();
+
+        var confirmResponse = await clientWithoutKey.PostAsync(
+            $"/api/reservations/{reservation!.Id}/confirm-payment", null);
+
+        confirmResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
     private async Task<EventResponse> CreateEventAsync(string title, int venueId, int maxCapacity, int dayOffset = 15)
     {
         var request = new CreateEventRequest(

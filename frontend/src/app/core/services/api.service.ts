@@ -56,7 +56,16 @@ export class ApiService {
   }
 
   confirmPayment(reservationId: string): Observable<Reservation> {
-    return this.http.post<Reservation>(`${this.baseUrl}/reservations/${reservationId}/confirm-payment`, {});
+    const headers: Record<string, string> = {};
+    if (environment.adminApiKey) {
+      headers['X-Admin-Key'] = environment.adminApiKey;
+    }
+
+    return this.http.post<Reservation>(
+      `${this.baseUrl}/reservations/${reservationId}/confirm-payment`,
+      {},
+      { headers }
+    );
   }
 
   cancelReservation(reservationId: string): Observable<Reservation> {
