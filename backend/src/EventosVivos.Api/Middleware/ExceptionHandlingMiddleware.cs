@@ -1,7 +1,7 @@
+using EventosVivos.Api.Serialization;
 using EventosVivos.Domain.Exceptions;
 using FluentValidation;
 using System.Net;
-using System.Text.Json;
 
 namespace EventosVivos.Api.Middleware;
 
@@ -44,14 +44,14 @@ public sealed class ExceptionHandlingMiddleware
                 HttpStatusCode.BadRequest,
                 new ErrorResponse(
                     "VALIDATION_ERROR",
-                    "One or more validation errors occurred.",
+                    "Se encontraron errores de validación.",
                     validation.Errors
                         .GroupBy(e => e.PropertyName)
                         .ToDictionary(g => g.Key, g => g.Select(e => e.ErrorMessage).ToArray()))),
 
             _ => (
                 HttpStatusCode.InternalServerError,
-                new ErrorResponse("INTERNAL_ERROR", "An unexpected error occurred."))
+                new ErrorResponse("INTERNAL_ERROR", "Ocurrió un error inesperado."))
         };
 
         if (statusCode == HttpStatusCode.InternalServerError)
@@ -61,7 +61,7 @@ public sealed class ExceptionHandlingMiddleware
 
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)statusCode;
-        await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+        await context.Response.WriteAsJsonAsync(response, ApiJsonOptions.Default);
     }
 }
 

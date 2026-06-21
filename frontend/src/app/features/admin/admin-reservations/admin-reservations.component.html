@@ -1,8 +1,9 @@
 <section class="card">
   <h2>Administración - Gestión de reservas</h2>
+  <p class="hint">Panel interno para confirmar pagos y cancelar reservas.</p>
 
   <form [formGroup]="form" (ngSubmit)="loadReservation()" class="search-form">
-    <input formControlName="reservationId" type="text" placeholder="ID de reserva (GUID)" />
+    <input formControlName="reservationId" type="text" placeholder="Identificador de la reserva" />
     <button type="submit">Buscar</button>
   </form>
 
@@ -15,12 +16,11 @@
 
   @if (reservation) {
     <div class="details">
-      <p><strong>ID:</strong> {{ reservation.id }}</p>
-      <p><strong>Evento:</strong> {{ reservation.eventId }}</p>
+      <p><strong>Evento:</strong> {{ eventTitle || 'Evento no disponible' }}</p>
       <p><strong>Comprador:</strong> {{ reservation.buyerName }} ({{ reservation.buyerEmail }})</p>
-      <p><strong>Cantidad:</strong> {{ reservation.quantity }}</p>
+      <p><strong>Entradas:</strong> {{ reservation.quantity }}</p>
       <p><strong>Estado:</strong> {{ getStatusLabel(reservation.status) }}</p>
-      <p><strong>Código:</strong> {{ reservation.reservationCode ?? 'N/A' }}</p>
+      <p><strong>Código de entrada:</strong> {{ reservation.reservationCode ?? 'Pendiente de confirmación' }}</p>
 
       <div class="actions">
         <button type="button" (click)="confirmPayment()" [disabled]="reservation.status !== 1">

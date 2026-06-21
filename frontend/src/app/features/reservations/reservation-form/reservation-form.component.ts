@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { getApiErrorMessage } from '../../../core/utils/api-error';
 import { ApiService } from '../../../core/services/api.service';
 import { Event } from '../../../core/models';
 
@@ -55,11 +56,12 @@ export class ReservationFormComponent implements OnInit {
       buyerEmail: value.buyerEmail!
     }).subscribe({
       next: reservation => {
-        this.successMessage = `Reserva creada (ID: ${reservation.id}). Estado: Pendiente de pago.`;
+        this.successMessage =
+          'Reserva creada correctamente. Estado: Pendiente de pago. Recibirás tu código de entrada cuando se confirme el pago.';
         this.isSubmitting = false;
       },
       error: err => {
-        this.errorMessage = err.error?.Message ?? err.error?.message ?? 'No se pudo crear la reserva.';
+        this.errorMessage = getApiErrorMessage(err, 'No se pudo crear la reserva.');
         this.isSubmitting = false;
       }
     });

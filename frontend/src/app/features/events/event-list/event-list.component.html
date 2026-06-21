@@ -33,6 +33,10 @@
     <p class="alert error">{{ errorMessage }}</p>
   }
 
+  @if (isLoading) {
+    <p>Cargando eventos...</p>
+  }
+
   <div class="grid">
     @for (event of events; track event.id) {
       <article class="event-card">
@@ -52,7 +56,9 @@
         </div>
       </article>
     } @empty {
-      <p>No se encontraron eventos.</p>
+      @if (!isLoading) {
+        <p>No se encontraron eventos.</p>
+      }
     }
   </div>
 </section>

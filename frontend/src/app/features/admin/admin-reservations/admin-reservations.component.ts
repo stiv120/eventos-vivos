@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { getApiErrorMessage } from '../../../core/utils/api-error';
 import { ApiService } from '../../../core/services/api.service';
 import { Reservation, ReservationStatus } from '../../../core/models';
 import { getReservationStatusLabel } from '../../../core/labels/labels';
@@ -17,6 +18,7 @@ export class AdminReservationsComponent {
   private readonly fb = inject(FormBuilder);
 
   reservation?: Reservation;
+  eventTitle = '';
   message = '';
   errorMessage = '';
 
@@ -30,8 +32,15 @@ export class AdminReservationsComponent {
 
     this.message = '';
     this.errorMessage = '';
+    this.eventTitle = '';
     this.api.getReservation(id).subscribe({
-      next: reservation => (this.reservation = reservation),
+      next: reservation => {
+        this.reservation = reservation;
+        this.api.getEvent(reservation.eventId).subscribe({
+          next: event => (this.eventTitle = event.title),
+          error: () => (this.eventTitle = '')
+        });
+      },
       error: () => {
         this.reservation = undefined;
         this.errorMessage = 'Reserva no encontrada.';
@@ -45,9 +54,9 @@ export class AdminReservationsComponent {
     this.api.confirmPayment(this.reservation.id).subscribe({
       next: reservation => {
         this.reservation = reservation;
-        this.message = `Pago confirmado. Código: ${reservation.reservationCode}`;
+        this.message = `Pago confirmado. Comunica al comprador el código ${reservation.reservationCode}.`;
       },
-      error: err => (this.errorMessage = err.error?.Message ?? err.error?.message ?? 'No se pudo confirmar el pago.')
+      error: err => (this.errorMessage = getApiErrorMessage(err, 'No se pudo confirmar el pago.'))
     });
   }
 
@@ -59,7 +68,7 @@ export class AdminReservationsComponent {
         this.reservation = reservation;
         this.message = `Reserva cancelada. Estado: ${getReservationStatusLabel(reservation.status)}`;
       },
-      error: err => (this.errorMessage = err.error?.Message ?? err.error?.message ?? 'No se pudo cancelar la reserva.')
+      error: err => (this.errorMessage = getApiErrorMessage(err, 'No se pudo cancelar la reserva.'))
     });
   }
 
