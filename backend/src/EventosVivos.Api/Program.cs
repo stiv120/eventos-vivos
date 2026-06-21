@@ -40,7 +40,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("Frontend");
-app.UseHttpsRedirection();
+
+if (!app.Environment.IsEnvironment("Docker"))
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseMiddleware<AdminApiKeyMiddleware>();
 app.MapControllers();
 
